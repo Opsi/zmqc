@@ -9,14 +9,14 @@ import (
 
 var (
 	host string
-	port uint64
+	port uint
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "zmqc",
 	Short: "Zmqc is a command line tool for ZeroMQ",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Root command!") // TODO
+		cmd.Help()
 	},
 }
 
@@ -28,9 +28,9 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&host, "host", "H", "localhost", "Host to connect to")
-	rootCmd.PersistentFlags().Uint64VarP(&port, "port", "p", 5555, "Port to connect to")
+	rootCmd.PersistentFlags().UintVarP(&port, "port", "p", 5555, "Port to connect to")
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(subCmd)
+	rootCmd.AddCommand(pubCmd)
 }
