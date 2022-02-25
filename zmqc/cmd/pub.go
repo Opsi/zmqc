@@ -24,8 +24,10 @@ var (
 )
 
 func publish(cmd *cobra.Command, args []string) {
-	socket := zmq.NewSocket(zmq.PUB)
-	socket.Bind(port)
+	ctx, _ := signal.NotifyContext(cmd.Context(), os.Interrupt)
+	msgChan := make(chan *zmq.PubMessage)
+	done := make(chan bool)
+	go zmq.StartPublish(ctx, port, msgChan, done)
 
 	var pubMsg string
 	if inlinePubMsg != "" {
@@ -39,10 +41,6 @@ func publish(cmd *cobra.Command, args []string) {
 		pubMsg = string(data)
 	}
 
-	msgChan := make(chan *zmq.PubMessage)
-	done := make(chan bool)
-	go socket.StartPublish(msgChan, done)
-
 	msgChan <- &zmq.PubMessage{
 		Topic:   pubTopic,
 		Payload: pubMsg,
@@ -55,8 +53,6 @@ func publish(cmd *cobra.Command, args []string) {
 	}
 
 	ticker := time.NewTicker(repeatFreq)
-	ctx, _ := signal.NotifyContext(cmd.Context(), os.Interrupt)
-
 	for {
 		select {
 		case <-ctx.Done():

@@ -21,14 +21,10 @@ var (
 )
 
 func subscribe(cmd *cobra.Command, args []string) {
-	socket := zmq.NewSocket(zmq.SUB)
-	socket.Connect(host, port)
-
+	ctx, _ := signal.NotifyContext(cmd.Context(), os.Interrupt)
 	msgChan := make(chan *zmq.SubMessage)
 
-	socket.StartSubscribe(subTopic, msgChan)
-
-	ctx, _ := signal.NotifyContext(cmd.Context(), os.Interrupt)
+	go zmq.StartSubscribe(ctx, host, port, subTopic, msgChan)
 
 	for {
 		select {
@@ -40,9 +36,9 @@ func subscribe(cmd *cobra.Command, args []string) {
 				return
 			}
 			if printTopic {
-				fmt.Printf("Topic '%s':\n", msg.Topic)
+				fmt.Printf("%s:\n", msg.Topic)
 			}
-			fmt.Printf("%s\n", msg.Payload)
+			fmt.Printf("%s\n\n", msg.Payload)
 		}
 	}
 }
