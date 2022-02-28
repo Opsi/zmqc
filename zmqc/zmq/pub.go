@@ -3,8 +3,8 @@ package zmq
 import (
 	"context"
 	"fmt"
-	"os"
 
+	"github.com/Opsi/zmqc/zmqc/logger"
 	"github.com/go-zeromq/zmq4"
 )
 
@@ -19,8 +19,7 @@ func StartPublish(ctx context.Context, port uint, msgChan <-chan *PubMessage, do
 
 	address := fmt.Sprintf("tcp://*:%d", port)
 	if err := pub.Listen(address); err != nil {
-		fmt.Printf("Error listening on %s: %s\n", address, err)
-		os.Exit(1)
+		logger.Fatalf("Error listening on %s: %s", address, err)
 	}
 
 	for msg := range msgChan {
@@ -29,10 +28,9 @@ func StartPublish(ctx context.Context, port uint, msgChan <-chan *PubMessage, do
 
 		msg := zmq4.NewMsgFrom(topicAsBytes, payloadAsBytes)
 		if err := pub.Send(msg); err != nil {
-			fmt.Printf("Error sending message: %s\n", err)
-			os.Exit(1)
+			logger.Fatalf("Error sending message: %s", err)
 		}
-		fmt.Printf("Published a %d bytes message to topic %s\n", len(payloadAsBytes), topicAsBytes)
+		logger.Infof("Published a %d bytes message to topic %s", len(payloadAsBytes), topicAsBytes)
 	}
 	done <- true
 }

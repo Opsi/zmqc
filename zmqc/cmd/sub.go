@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"os/signal"
 
+	"github.com/Opsi/zmqc/zmqc/logger"
 	"github.com/Opsi/zmqc/zmqc/zmq"
 	"github.com/spf13/cobra"
 )
@@ -29,16 +29,17 @@ func subscribe(cmd *cobra.Command, args []string) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("Received interrupt signal, exiting...")
+			logger.Info("Received interrupt signal, exiting...")
 			return
 		case msg, ok := <-msgChan:
 			if !ok {
 				return
 			}
 			if printTopic {
-				fmt.Printf("%s:\n", msg.Topic)
+				logger.Infof("Topic: %s\n%s", msg.Topic, msg.Payload)
+			} else {
+				logger.Infof("%s", msg.Payload)
 			}
-			fmt.Printf("%s\n\n", msg.Payload)
 		}
 	}
 }
