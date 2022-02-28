@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
@@ -29,16 +29,17 @@ func subscribe(cmd *cobra.Command, args []string) {
 	for {
 		select {
 		case <-ctx.Done():
-			fmt.Println("Received interrupt signal, exiting...")
+			log.Print("Received interrupt signal, exiting...")
 			return
 		case msg, ok := <-msgChan:
 			if !ok {
 				return
 			}
 			if printTopic {
-				fmt.Printf("%s:\n", msg.Topic)
+				log.Printf("Topic '%s':\n%s", msg.Topic, msg.Payload)
+			} else {
+				log.Printf("%s", msg.Payload)
 			}
-			fmt.Printf("%s\n\n", msg.Payload)
 		}
 	}
 }
