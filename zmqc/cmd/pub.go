@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"time"
 
+	"github.com/Opsi/zmqc/zmqc/logger"
 	"github.com/Opsi/zmqc/zmqc/zmq"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +35,7 @@ func publish(cmd *cobra.Command, args []string) {
 	} else if pubPayloadFile != "" {
 		data, err := os.ReadFile(pubPayloadFile)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
 		pubMsg = string(data)
 	}
@@ -55,7 +55,7 @@ func publish(cmd *cobra.Command, args []string) {
 	for {
 		select {
 		case <-ctx.Done():
-			log.Print("Received interrupt signal, exiting...")
+			logger.Info("Received interrupt signal, exiting...")
 			return
 		case <-ticker.C:
 			msgChan <- &zmq.PubMessage{

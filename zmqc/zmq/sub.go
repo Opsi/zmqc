@@ -3,8 +3,8 @@ package zmq
 import (
 	"context"
 	"fmt"
-	"log"
 
+	"github.com/Opsi/zmqc/zmqc/logger"
 	"github.com/go-zeromq/zmq4"
 )
 
@@ -19,19 +19,19 @@ func StartSubscribe(ctx context.Context, host string, port uint, topic string, m
 
 	address := fmt.Sprintf("tcp://%s:%d", host, port)
 	if err := sub.Dial(address); err != nil {
-		log.Fatalf("Error connecting to %s: %s", address, err)
+		logger.Fatalf("Error connecting to %s: %s", address, err)
 	}
 
 	if err := sub.SetOption(zmq4.OptionSubscribe, topic); err != nil {
-		log.Fatalf("Error subscribing to topic: %s", err)
+		logger.Fatalf("Error subscribing to topic: %s", err)
 	}
 	for {
 		msg, err := sub.Recv()
 		if err != nil {
-			log.Fatalf("Error receiving message: %s", err)
+			logger.Fatalf("Error receiving message: %s", err)
 		}
 		if len(msg.Frames) != 2 {
-			log.Fatalf("Invalid message: %v", msg)
+			logger.Fatalf("Invalid message: %v", msg)
 		}
 		msgChan <- &SubMessage{
 			Topic:   msg.Frames[0],
